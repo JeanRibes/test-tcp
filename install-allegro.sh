@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -e /home/vagrant/pcc_allegro.ko ]
+if [ -e /home/vagrant/pcc-allegro/tcp_pcc.ko ]
 then
 	echo "pcc allegro déjà compilé"
 	exit 0

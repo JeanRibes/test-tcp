@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -e /home/vagrant/pcc_vivace.ko ]
+if [ -e /home/vagrant/pcc-vivace/tcp_pcc.ko ]
 then
 	echo "PCC vivace déjà compilé"
 	exit 0

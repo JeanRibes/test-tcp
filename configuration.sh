@@ -1,4 +1,4 @@
-sh /vagrant/install-allegro.sh
-sh /vagrant/install-vivace.sh
+bash /vagrant/install-allegro.sh
+bash /vagrant/install-vivace.sh
 
-sh /vagrant/all.sh
+bash /vagrant/test.sh
