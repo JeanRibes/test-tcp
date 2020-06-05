@@ -42,8 +42,10 @@ if __name__ == '__main__':
         elif fichier.startswith('down_'):
             process_donnees(os.path.join('resultats',fichier), algos_down)
     plt.subplot(1,2,1)
-    afficher_graphique(algos_up, f"Durée montante (x{len(list(algos_up.values())[0])})")
+    afficher_graphique(algos_up, f"Durée montante ({len(list(algos_up.values())[0])} fois)")
+    plt.title("envoi d'une image\nde 1Mo par HTTP")
     plt.subplot(1,2,2)
-    afficher_graphique(algos_down, f"Durée descendante (x{len(list(algos_down.values())[0])})")
+    afficher_graphique(algos_down, f"Durée descendante ({len(list(algos_down.values())[0])} fois)")
+    plt.title("réception d'une image\nde 1.3 Mo par HTTPS")
     plt.show()
 

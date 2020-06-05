@@ -25,9 +25,9 @@ test_download () { # 1er argument: nom de l'algo
 	done
 }
 
-curl http://bouygues.testdebit.info/1M/1M.jpg > 1M.jpg
+curl http://bouygues.testdebit.info/1M/1M.jpg > 1M.jpg # récupère le fichier qu'on va envoyer
 test_upload () { #1er arg: algo
-	for x in $(seq 1 10); do
+	for x in $(seq 1 10); do # répète 10fois le test
 		res=$(curl -w "%{time_total},%{size_upload},%{speed_upload}" -k -4 -o NUL -F "filecontent=@1M.jpg" http://bouygues.testdebit.info 2>&1 | tail -n1)
 		echo "$1,$res" >> $UPFILE
 		echo "$res  --(UP)>> $1"
@@ -40,26 +40,37 @@ echo "envoi d'une image de 1Mo vers testdebit bouyges,,," > $UPFILE
 echo "algo,temps(s),taille(octets),débit utile(o/s)" >> $UPFILE
 
 echo "tests TCP"
+
+# itére tous les algorithmes de contrôle de congestion installés
 for algo in $(sysctl net.ipv4.tcp_available_congestion_control | awk -F'=' '{print $2}'); do
  	sysctl -w net.ipv4.tcp_congestion_control=$algo > /dev/null
+
 	test_download "$(sysctl net.ipv4.tcp_congestion_control | awk -F' = ' '{print $2}')"
 	test_upload "$(sysctl net.ipv4.tcp_congestion_control | awk -F' = ' '{print $2}')"
 done
 
 echo "tests PCC"
+
 echo "pcc allegro"
 rmmod tcp_pcc > /dev/null
 insmod /home/vagrant/pcc-allegro/tcp_pcc.ko
 sysctl -w net.ipv4.tcp_congestion_control=pcc > /dev/null
-test_download "vivace"
-test_upload "vivace"
+
+test_download "allegro"
+test_upload "allegro"
+
+
+
 echo "pcc vivace"
 sysctl -w net.ipv4.tcp_congestion_control=cubic > /dev/null #on désactive pcc allegro avant de l'enlever
 rmmod tcp_pcc
 insmod /home/vagrant/pcc-vivace/tcp_pcc.ko
 sysctl -w net.ipv4.tcp_congestion_control=pcc > /dev/null
-test_download "allegro"
-test_upload "allegro"
+
+test_download "vivace"
+test_upload "vivace"
+
+
 chown vagrant:vagrant /vagrant/resultats/*
 echo "consultez les résultats descendants dans ce fichier : resultats/$DOWNNAME"
 echo "consultez les résultats montants dans ce fichier : resultats/$UPNAME"
