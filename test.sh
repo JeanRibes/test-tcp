@@ -15,7 +15,7 @@ UPNAME="up_$(date -Iminutes|tr ':' '-').csv"
 UPFILE="/vagrant/resultats/$UPNAME"
 chown vagrant:vagrant /vagrant/resultats
 test_download () { # 1er argument: nom de l'algo
-	for x in $(seq 1 10); do
+	for x in $(seq 1 10); do # répète 10fois le test
 		res=$(curl -w "%{time_total},%{size_download},%{speed_download}" -k -4 -o NUL https://www.insa-lyon.fr/sites/www.insa-lyon.fr/files/styles/slider_home/public/slider/taxe-apprentissage_insalyon-2020.png 2>&1|tail -n1)
 		time_total=$(echo $res | cut -f1 -d',')
 		size_download=$(echo $res | cut -f2 -d',')
