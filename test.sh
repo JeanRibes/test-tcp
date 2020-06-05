@@ -8,9 +8,11 @@ done
 # 	echo "sysctl -w net.ipv4.tcp_congestion_control=$i"
 #	echo "\n"
 #done
-DOWNFILE=$(mktemp)
-UPFILE=$(mktemp)
 mkdir -p /vagrant/resultats
+DOWNNAME="down_$(date -Iminutes|tr ':' '-').csv"
+DOWNFILE="/vagrant/resultats/$DOWNNAME"
+UPNAME="up_$(date -Iminutes|tr ':' '-').csv"
+UPFILE="/vagrant/resultats/$UPNAME"
 chown vagrant:vagrant /vagrant/resultats
 test_download () { # 1er argument: nom de l'algo
 	for x in $(seq 1 10); do
@@ -58,11 +60,9 @@ insmod /home/vagrant/pcc-vivace/tcp_pcc.ko
 sysctl -w net.ipv4.tcp_congestion_control=pcc > /dev/null
 test_download "allegro"
 test_upload "allegro"
-cp $UPFILE /vagrant/resultats/
-cp $DOWNFILE /vagrant/resultats/
 chown vagrant:vagrant /vagrant/resultats/*
-echo "consultez les résultats descendants dans ce fichier : $(echo $DOWNFILE|cut -f3 -d'/')"
-echo "consultez les résultats montat dans ce fichier : $(echo $UPFILE|cut -f3 -d'/')"
+echo "consultez les résultats descendants dans ce fichier : resultats/$DOWNNAME"
+echo "consultez les résultats montants dans ce fichier : resultats/$UPNAME"
 
 echo "Pour relancer le test, tapez la commande:"
 echo "vagrant provision"
