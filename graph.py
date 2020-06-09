@@ -5,13 +5,15 @@ from matplotlib import pyplot as plt
 import numpy as np
 import csv
 
-max_total =0 # valeur maximum pour l'échelle des graphique
+max_total = 0  # valeur maximum pour l'échelle des graphique
+
 
 class ListDict(dict):
     """
     petite class pratique pour stocker un dictionnaire de listes
     il fait en sorte que toutes les valeurs existent
     """
+
     def __getitem__(self, item) -> list:
         try:
             return super().__getitem__(item)
@@ -27,9 +29,8 @@ def process_donnees(filename, algos: ListDict):
         for row in r:
             if row[2] == '' or row[0] == 'algo':  # saute les en-êtes
                 continue
-
             algo, time, size, speed = row  # algo,temps(s),taille(octets),débit utile(o/s)
-            valeur=float(time)
+            valeur = float(time)
             algos[algo].append(valeur)
             global max_total
             if valeur > max_total:
@@ -42,7 +43,7 @@ def afficher_graphique(donnees: ListDict, title):
     medianes = []
     for algo in donnees.keys():
         affichage_y.append(i)
-        i+=1
+        i += 1
         moy = mean(donnees[algo])
         affichage_val.append(moy)
         affichage_label.append(algo)
@@ -50,32 +51,32 @@ def afficher_graphique(donnees: ListDict, title):
 
         min_algo, max_algo = min(donnees[algo]), max(donnees[algo])
 
-        #affichage_confiance.append(
+        # affichage_confiance.append(
         #    (max_algo-min_algo) + (max_algo+min_algo)/2
-        #)
-        if min_algo <0:
+        # )
+        if min_algo < 0:
             print(f"erreur dans {algo} : min<0: {min_algo}")
         if moy < min_algo:
             raise ArithmeticError()
-        affichage_confiance.append([(moy-min_algo), (max_algo-moy)])
-        #affichage_confiance.append([0.1,0.3])
+        affichage_confiance.append([(moy - min_algo), (max_algo - moy)])
+        # affichage_confiance.append([0.1,0.3])
 
-    plt.barh( # affichage des moyennes
+    plt.barh(  # affichage des moyennes
         y=affichage_y,
         width=affichage_val,
         tick_label=affichage_label,
         xerr=np.array(affichage_confiance).transpose(),
         color='gray',
     )
-    plt.barh( # affiche les médianes avec un petit hack pour montrer juste des barres verticales
+    plt.barh(  # affiche les médianes avec un petit hack pour montrer juste des barres verticales
         y=affichage_y,
         width=medianes,
         tick_label=affichage_label,
-        alpha=0, # cache la couleur
+        alpha=0,  # cache la couleur
         yerr=0.25,
     )
     plt.xlabel(xlabel=title)
-    plt.xlim(0,max_total)
+    plt.xlim(0, max_total)
 
 
 if __name__ == '__main__':
