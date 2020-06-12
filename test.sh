@@ -16,11 +16,12 @@ UPFILE="/vagrant/resultats/$UPNAME"
 chown vagrant:vagrant /vagrant/resultats
 test_download () { # 1er argument: nom de l'algo
 	for x in $(seq 1 10); do # répète 10fois le test
-		res=$(curl -w "%{time_total},%{size_download},%{speed_download}" -k -4 -o NUL https://www.insa-lyon.fr/sites/www.insa-lyon.fr/files/styles/slider_home/public/slider/taxe-apprentissage_insalyon-2020.png 2>&1|tail -n1)
+		res=$(curl -w "%{time_total},%{size_download},%{speed_download}" -k -4 -o NUL http://ipv4.paris.testdebit.info/1M/1M.jpg 2>&1|tail -n1)
 		time_total=$(echo $res | cut -f1 -d',')
 		size_download=$(echo $res | cut -f2 -d',')
 		speed_download=$(echo $res | cut -f3 -d',')
-		echo "$1,$res" >> $DOWNFILE
+    rtt=$(ping -c3 ipv4.paris.testdebit.info |head -n4|tail -n1|awk -F'=' '{print $NF}'|cut -d' ' -f1)
+		echo "$1,$res,$rtt" >> $DOWNFILE
 		echo "${time_total}s, ${speed_download}o/s  (${size_download}o)  <<(DOWN)-- $1"
 	done
 }
@@ -28,16 +29,17 @@ test_download () { # 1er argument: nom de l'algo
 curl http://bouygues.testdebit.info/1M/1M.jpg > 1M.jpg # récupère le fichier qu'on va envoyer
 test_upload () { #1er arg: algo
 	for x in $(seq 1 10); do # répète 10fois le test
-		res=$(curl -w "%{time_total},%{size_upload},%{speed_upload}" -k -4 -o NUL -F "filecontent=@1M.jpg" http://bouygues.testdebit.info 2>&1 | tail -n1)
-		echo "$1,$res" >> $UPFILE
+		res=$(curl -w "%{time_total},%{size_upload},%{speed_upload}" -k -4 -o NUL -F "filecontent=@1M.jpg" http://ipv4.paris.testdebit.info 2>&1 | tail -n1)
+		rtt=$(ping -c3 ipv4.paris.testdebit.info |head -n4|tail -n1|awk -F'=' '{print $NF}'|cut -d' ' -f1)
+		echo "$1,$res,$rtt" >> $UPFILE
 		echo "$res  --(UP)>> $1"
 	done
 }
-echo "téléchargement d'une image depuis l'INSA,,," > $DOWNFILE
-echo "algo,temps(s),taille(octets),débit utile(o/s)" >> $DOWNFILE
+echo "téléchargement d'une image depuis l'INSA,,,," > $DOWNFILE
+echo "algo,temps(s),taille(octets),débit utile(o/s),rtt(ms)" >> $DOWNFILE
 
-echo "envoi d'une image de 1Mo vers testdebit bouyges,,," > $UPFILE
-echo "algo,temps(s),taille(octets),débit utile(o/s)" >> $UPFILE
+echo "envoi d'une image de 1Mo vers testdebit bouyges,,,," > $UPFILE
+echo "algo,temps(s),taille(octets),débit utile(o/s),rtt(ms)" >> $UPFILE
 
 echo "tests TCP"
 
