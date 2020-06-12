@@ -1,3 +1,4 @@
+import datetime
 import os
 from statistics import mean, median
 from typing import List
@@ -145,19 +146,52 @@ def graphiques_detail_temps(algo: str):
     afficher_graphique_temps(algos_up[algo])
 
 
+def extract_moyenne_delai(filename) -> float:
+    delai_list = []
+    with open(filename) as infile:
+        r = csv.reader(infile, delimiter=',')
+        for row in r:
+            if row[2] == '' or row[0] == 'algo' or row[0] == 'ccp':  # saute les en-êtes
+                continue
+            try:
+                algo, time, size, speed, rtt = row
+            except ValueError:
+                algo, time, size, speed = row
+            delai_list.append(float(time))
+    return median(delai_list)
+
+
+def generer_graphique_journee():
+    dates = []
+    moyennes_temps = []
+    for fichier in list(os.walk('resultats'))[0][2]:
+        temps_m = extract_moyenne_delai(os.path.join('resultats', fichier))
+        moyennes_temps.append(temps_m)
+        strdate = fichier.split('_')[1].rstrip('.csv').split('+')[0]
+        date = datetime.datetime.strptime(strdate, '%Y-%m-%dT%H-%M')
+        dates.append(date.strftime("%Hh%M"))
+    plt.plot(moyennes_temps)
+    plt.xticks(rotation=30, ha='right')
+    plt.xticks(range(len(dates)), dates)
+    plt.title("Délai médian pour tous les algos au cours du temps")
+    plt.ylabel("Délai de transfert de fichier (s)")
+    plt.show()
+
+
 if __name__ == '__main__':
     plt.subplot(1, 3, 1)
     graphiques_moyennes_rtt()
     graphiques_moyennes_temps()
     plt.show()
 
-    graphiques_detail_temps('bbr')
-    graphiques_detail_temps('cubic')
-    graphiques_detail_temps('vegas')
-    plt.xlabel("Nombre de tests")
-    plt.title("Temps de transmission en fonction du temps")
-    plt.legend(['bbr', 'cubic', 'vegas'])
-    plt.show()
+    # graphiques_detail_temps('bbr')
+    # graphiques_detail_temps('cubic')
+    # graphiques_detail_temps('vegas')
+    # plt.xlabel("Nombre de tests")
+    # plt.title("Temps de transmission en fonction du temps")
+    # plt.legend(['bbr', 'cubic', 'vegas'])
+    # plt.show()
+    generer_graphique_journee()
 """
 rajouter la version de l'OS, du kernel
 avoir les mêmes échelles horizontales
